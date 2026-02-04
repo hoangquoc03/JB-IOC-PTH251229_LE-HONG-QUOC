@@ -139,7 +139,7 @@ GROUP BY r.room_id,
          r.room_type,
 		 r.room_price
 HAVING sum(p.payment_amount) <1000 AND
-COUNT(distinct b.customer_id)>= 3;
+COUNT( b.customer_id)>= 3;
 -- 2.12
 SELECT c.customer_id, 
        c.customer_full_name, 
@@ -252,4 +252,5 @@ BEGIN
      INSERT INTO Payment (booking_id,payment_method,payment_amount,payment_date)
 	 VALUES (p_booking_id,p_payment_method,p_payment_amount,p_payment_date);
 END;
+
 $$ language plpgsql;
