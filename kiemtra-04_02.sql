@@ -111,35 +111,25 @@ LIMIT 3 offset 1;
 -- 2.10
 SELECT c.customer_id,
        c.customer_full_name,
-	   COUNT(b.room_id) AS total_room
-FROM Payment p
-JOIN Booking b
-ON p.booking_id = b.booking_id
-JOIN Customer c 
-ON b.customer_id = c.customer_id
-GROUP BY c.customer_id,
-         c.customer_full_name,
-		 p.payment_amount
+       COUNT(b.room_id) AS total_room
+FROM Customer c
+JOIN Booking b ON b.customer_id = c.customer_id
+JOIN Payment p ON p.booking_id = b.booking_id
+GROUP BY c.customer_id, c.customer_full_name
 HAVING COUNT(b.room_id) >= 2
-AND p.payment_amount > 1000;
+AND SUM(p.payment_amount) > 1000;
 
 -- 2.11
 SELECT r.room_id,
        r.room_type,
-	   r.room_price, 
-	   sum(p.payment_amount) AS total_amount
-FROM customer c
-JOIN booking b
-ON b.customer_id = c.customer_id
-JOIN room r
-ON r.room_id = b.room_id
-JOIN payment p 
-ON p.booking_id = b.booking_id
-GROUP BY r.room_id,
-         r.room_type,
-		 r.room_price
-HAVING sum(p.payment_amount) <1000 AND
-COUNT( b.customer_id)>= 3;
+       r.room_price, 
+       SUM(p.payment_amount) AS total_amount
+FROM Room r
+JOIN Booking b ON r.room_id = b.room_id
+JOIN Payment p ON p.booking_id = b.booking_id
+GROUP BY r.room_id, r.room_type, r.room_price
+HAVING SUM(p.payment_amount) < 1000
+AND COUNT(DISTINCT b.customer_id) >= 3;
 -- 2.12
 SELECT c.customer_id, 
        c.customer_full_name, 
@@ -181,7 +171,7 @@ JOIN Customer c
 ON c.customer_id =b.customer_id
 JOIN Room r
 ON r.room_id = b.room_id
-WHERE b.check_in_date < '2025-01-10';
+WHERE b.check_in_date < '2025-03-10';
 -- 3.16
 CREATE VIEW vw_check_area AS
 SELECT c.customer_id,
@@ -254,3 +244,4 @@ BEGIN
 END;
 
 $$ language plpgsql;
+
